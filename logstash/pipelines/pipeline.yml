@@ -1,0 +1,4 @@
+# - pipeline.id: beats
+#   path.config: "/usr/share/logstash/scripts/nginx-access.conf"
+- pipeline.id: s3
+  path.config: "/usr/share/logstash/scripts/s3.conf"

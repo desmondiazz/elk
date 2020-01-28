@@ -1,0 +1,64 @@
+version: '3'
+services: 
+    # elasticsearch:
+    #     image: 'docker.elastic.co/elasticsearch/elasticsearch:7.1.1'
+    #     container_name: elasticsearch
+    #     ports: 
+    #         - 9200:9200
+    #     volumes:
+    #         - './elasticsearch/data:/usr/share/elasticsearch/data' 
+    #         - './elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
+    #     environment: 
+    #         discovery.type: single-node
+    #     networks: 
+    #         - elk
+    logstash:
+        image: docker.elastic.co/logstash/logstash:7.4.2
+        container_name: logstash
+        # depends_on: 
+        #     - elasticsearch
+        volumes: 
+            - './logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml'
+            - './logstash/pipelines/pipeline.yml:/usr/share/logstash/config/pipelines.yml'
+            - './logstash/scripts/:/usr/share/logstash/scripts/'
+            - './logstash/drivers/GeoLite2-City.mmdb:/var/opt/GeoLite2-City/GeoLite2-City.mmdb'
+        networks: 
+            - elk
+        environment: 
+            - ES_USER=${ES_USER}
+            - ES_PASSWORD=${ES_PASSWORD}
+            - AWS_S3_ACCESS_KEY_ID=${AWS_S3_ACCESS_KEY_ID}
+            - AWS_S3_SECRET_ACCESS_KEY=${AWS_S3_SECRET_ACCESS_KEY}
+        # command: bash -c "bin/logstash-plugin install logstash-input-s3"
+        # links: 
+        #     - "elasticsearch:es"
+    # filebeat:
+    #     image: docker.elastic.co/beats/filebeat:7.5.1
+    #     container_name: filebeat
+    #     depends_on: 
+    #         - logstash
+    #     networks: 
+    #         - elk
+    #     volumes: 
+    #         - './filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml'
+    #         - '/var/log/:/var/log'
+    #     user: root
+    # kibana:
+    #     image: docker.elastic.co/kibana/kibana-oss:7.1.1
+    #     container_name: kibana
+    #     volumes: 
+    #         - './kibana/kibana.yml:/usr/share/kibana/config/kibana.yml'
+    #     external_links: 
+    #         - "elasticsearch:es"
+    #     networks: 
+    #         - elk
+    #     ports: 
+    #         - 5601:5601
+    #     depends_on: 
+    #         - elasticsearch
+    #     environment: 
+    #         - ES_USER=${ES_USER}
+    #         - ES_PASSWORD=${ES_PASSWORD}
+networks: 
+    elk:
+        external: true
